@@ -1,0 +1,45 @@
+# Use root/example as user/password credentials
+version: '3.1'
+
+networks:
+    mysql-phpmyadmin:
+        name: mysql-phpmyadmin
+        driver: bridge
+
+volumes:
+    mysqldata:
+        driver: local
+        driver_opts:
+            type: 'none'
+            o: 'bind'
+            device: '${HOME}/server/mysql-phpmyadmin/data'
+
+services:
+
+  mysql:
+    image: mysql/mysql-server
+    restart: always
+    networks:
+      mysql-phpmyadmin:
+        aliases:
+          - mysql
+    environment:
+        MYSQL_ROOT_PASSWORD: root_password
+        MYSQL_DATABASE: database_name
+        MYSQL_USER: user_name
+        MYSQL_PASSWORD: user_password
+
+  phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin
+        links:
+            - mysql
+        environment:
+            PMA_HOST: mysql
+            PMA_PORT: 3306
+        ports:
+            - 8080:80
+        networks:
+          mysql-phpmyadmin:
+            aliases:
+            - phpmyadmin
